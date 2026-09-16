@@ -24,9 +24,34 @@ brew install --cask avidemux2-arm64
 
 ## Usage
 
-- GUI editor: `avidemux-gui &`
-- CLI batch tool (matches the official cask/Linux naming, does nothing
-  with no arguments): `avidemux --help`
+### GUI
+
+Launch the GUI editor from a terminal with:
+
+```
+avidemux-gui &
+```
+
+`avidemux-gui` is a small wrapper script the cask installs to
+`$(brew --prefix)/bin/avidemux-gui`; it just runs
+`open -a "/Applications/Avidemux-2.8.2.app"`. A plain symlink straight to
+the app's internal binary won't work — Avidemux resolves its
+Resources/Frameworks/Qt plugin paths relative to `argv[0]`, which breaks
+once invoked outside the `.app` bundle — so always launch it through this
+wrapper (or by opening the app from Finder/Spotlight) rather than calling
+the binary inside `Avidemux-2.8.2.app/Contents/MacOS/` directly.
+
+The trailing `&` backgrounds the command so your terminal stays usable;
+the GUI keeps running after you close the terminal.
+
+### CLI
+
+The CLI batch-processing tool (matches the official cask/Linux naming,
+does nothing with no arguments):
+
+```
+avidemux --help
+```
 
 ## Gatekeeper warning
 
