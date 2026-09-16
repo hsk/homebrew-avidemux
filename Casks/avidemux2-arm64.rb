@@ -20,12 +20,31 @@ cask "avidemux2-arm64" do
     run "/usr/bin/xattr",
         args: ["-dr", "com.apple.quarantine", "{{appdir}}/Avidemux-{{version}}.app"],
         must_succeed: false
+
+    # A `binary` symlink straight to Contents/MacOS/Avidemux2.8 aborts
+    # (SIGABRT): the app resolves its Resources/Frameworks/Qt plugin paths
+    # relative to argv[0], which breaks once invoked via a symlink outside
+    # the bundle. `open -a` launches it the correct way.
+    write_file "bin/avidemux-gui", <<~SCRIPT, base: "homebrew_prefix", overwrite: true
+      #!/bin/sh
+      exec open -a "{{appdir}}/Avidemux-{{version}}.app" "$@"
+    SCRIPT
+    run "/bin/chmod", args: ["+x", "{{HOMEBREW_PREFIX}}/bin/avidemux-gui"], must_succeed: false
+  end
+
+  uninstall_postflight_steps do
+    run "/bin/rm", args: ["-f", "{{HOMEBREW_PREFIX}}/bin/avidemux-gui"], must_succeed: false
   end
 
   caveats <<~EOS
     This build is ad-hoc signed only, not notarized by Apple. The quarantine
-    flag was cleared automatically so both the app and `avidemux`/`avidemux_jobs`
-    CLI binaries should run without a Gatekeeper prompt.
+    flag was cleared automatically so the app and CLI binaries should run
+    without a Gatekeeper prompt.
+
+    `avidemux` is the CLI batch-processing tool (matches the official cask
+    and Linux naming); it does nothing when run with no arguments.
+    To launch the GUI editor from a terminal, use:
+      avidemux-gui &
 
     This is an unofficial community build, not affiliated with the
     avidemux2 project (https://github.com/mean00/avidemux2).
