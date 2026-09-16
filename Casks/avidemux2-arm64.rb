@@ -8,12 +8,24 @@ cask "avidemux2-arm64" do
   homepage "https://github.com/mean00/avidemux2"
 
   app "Avidemux-2.8.2.app"
+  binary "#{appdir}/Avidemux-#{version}.app/Contents/MacOS/avidemux_cli", target: "avidemux"
+  binary "#{appdir}/Avidemux-#{version}.app/Contents/MacOS/avidemux_jobs"
+
+  postflight_steps do
+    # This build is ad-hoc signed only, not notarized. Without clearing the
+    # quarantine flag, Gatekeeper blocks the GUI app and SIGKILLs the CLI
+    # binaries when invoked directly from a terminal.
+    # `xattr -r` exits non-zero on the dangling Resources symlinks inside
+    # Qt's .framework bundles, so allow_failure via must_succeed: false.
+    run "/usr/bin/xattr",
+        args: ["-dr", "com.apple.quarantine", "{{appdir}}/Avidemux-{{version}}.app"],
+        must_succeed: false
+  end
 
   caveats <<~EOS
-    This build is ad-hoc signed only, not notarized by Apple.
-    On first launch, Gatekeeper will refuse to open it. Either:
-      - Right-click (or Control-click) the app in Finder and choose "Open", or
-      - Run: xattr -dr com.apple.quarantine "/Applications/Avidemux-#{version}.app"
+    This build is ad-hoc signed only, not notarized by Apple. The quarantine
+    flag was cleared automatically so both the app and `avidemux`/`avidemux_jobs`
+    CLI binaries should run without a Gatekeeper prompt.
 
     This is an unofficial community build, not affiliated with the
     avidemux2 project (https://github.com/mean00/avidemux2).
