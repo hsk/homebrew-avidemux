@@ -15,16 +15,32 @@ resolved.
 brew install --cask hsk/avidemux/avidemux2-arm64
 ```
 
+or
+
+```
+brew tap hsk/avidemux
+brew install --cask avidemux2-arm64
+```
+
+## Usage
+
+- GUI editor: `avidemux-gui &`
+- CLI batch tool (matches the official cask/Linux naming, does nothing
+  with no arguments): `avidemux --help`
+
 ## Gatekeeper warning
 
-This build is **ad-hoc signed only, not notarized** by Apple. On first
-launch it will be blocked. Work around it with either:
+This build is **ad-hoc signed only, not notarized** by Apple. The cask's
+install step automatically clears the quarantine flag
+(`xattr -dr com.apple.quarantine`) on the app bundle, so the app and CLI
+binaries should launch without a Gatekeeper prompt. If macOS still blocks
+it (e.g. after copying the app elsewhere), clear it manually:
 
-- Right-click (Control-click) the app in Finder and choose **Open**, or
-- Run:
-  ```
-  xattr -dr com.apple.quarantine "/Applications/Avidemux-2.8.2.app"
-  ```
+```
+xattr -dr com.apple.quarantine "/Applications/Avidemux-2.8.2.app"
+```
+
+or right-click (Control-click) the app in Finder and choose **Open**.
 
 Pull requests for proper Developer ID signing + notarization are welcome.
 
